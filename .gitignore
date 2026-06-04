@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+env/
+.env
+.venv/
+
+# Trained model data (personal — don't commit)
+models/embeddings/*.npy
+models/known_faces/
+models/eigenfaces/*.pkl
+
+# DeepFace downloaded weights (large, auto-downloaded on first run)
+.deepface/
+
+# Logs & temp
+*.log
+/tmp/
+*.tmp
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Flask secret (if ever moved to .env)
+.env
+.env.local

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FaceVision AI</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <header>
+    <h1>FaceVision AI</h1>
+    <span id="uptime-badge">Uptime: --</span>
+  </header>
+
+  <main>
+    <section class="stream-panel">
+      <div class="stream-wrapper">
+        <img id="stream" src="/video_feed" alt="Live stream" />
+      </div>
+    </section>
+
+    <aside class="side-panel">
+
+      <!-- Camera -->
+      <div class="card" id="camera-card">
+        <h2>Camera</h2>
+        <div class="stat-row">
+          <span class="label">Source</span>
+          <span id="cam-source-badge" class="cam-badge">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Resolution</span>
+          <span id="cam-resolution" class="muted">--</span>
+        </div>
+        <div class="stat-row">
+          <span class="label">Status</span>
+          <span id="cam-status">--</span>
+        </div>
+        <form id="camera-form">
+          <div class="cam-input-row">
+            <input type="text" id="cam-source-input"
+                   placeholder="0  or  rtsp://ip:554/stream" />
+            <button type="submit" id="cam-switch-btn">Switch</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Stats -->
+      <div class="card" id="stats-card">
+        <h2>Stats</h2>
+        <div class="stat-row"><span class="label">FPS</span><span id="fps">--</span></div>
+        <div class="stat-row"><span class="label">Faces</span><span id="face-count">--</span></div>
+        <div class="stat-row"><span class="label">Known</span><span id="known-count">--</span></div>
+        <div class="stat-row">
+          <span class="label">Emotion</span>
+          <span id="dominant-emotion" class="emotion-chip">--</span>
+        </div>
+      </div>
+
+      <!-- Modules -->
+      <div class="card" id="modules-card">
+        <h2>Modules</h2>
+        <div class="module-row"><span class="dot" id="mod-detection"></span>Detection</div>
+        <div class="module-row"><span class="dot" id="mod-recognition"></span>Recognition</div>
+        <div class="module-row"><span class="dot" id="mod-emotion"></span>Emotion</div>
+        <div class="module-row"><span class="dot" id="mod-reconstruction"></span>Reconstruction</div>
+      </div>
+
+      <!-- Register -->
+      <div class="card" id="register-card">
+        <h2>Register Face</h2>
+        <div class="tab-bar">
+          <button class="tab active" data-tab="auto">Auto Capture</button>
+          <button class="tab"        data-tab="upload">Upload Photo</button>
+          <button class="tab"        data-tab="snapshot">Snapshot</button>
+        </div>
+
+        <!-- Auto Capture tab -->
+        <div class="tab-content active" data-tab="auto">
+          <input type="text" id="auto-name" placeholder="Person name" />
+
+          <div class="count-row">
+            <span class="label">Frames to capture</span>
+            <div class="count-btns">
+              <button class="count-btn active" data-count="5">5</button>
+              <button class="count-btn"        data-count="8">8</button>
+              <button class="count-btn"        data-count="12">12</button>
+            </div>
+          </div>
+
+          <!-- Quality meter (live) -->
+          <div class="quality-box" id="quality-box">
+            <div class="quality-label">Face quality: <span id="qlabel">--</span></div>
+            <div class="qbar-wrap">
+              <div class="qbar-track"><div class="qbar-fill" id="q-sharp"></div></div>
+              <span class="qbar-name">Sharpness</span>
+            </div>
+            <div class="qbar-wrap">
+              <div class="qbar-track"><div class="qbar-fill" id="q-bright"></div></div>
+              <span class="qbar-name">Brightness</span>
+            </div>
+            <div class="qbar-wrap">
+              <div class="qbar-track"><div class="qbar-fill" id="q-contrast"></div></div>
+              <span class="qbar-name">Contrast</span>
+            </div>
+          </div>
+
+          <!-- Progress -->
+          <div class="progress-box" id="progress-box" hidden>
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-label" id="progress-label">0 / 0</div>
+            <div class="progress-msg" id="progress-msg"></div>
+          </div>
+
+          <div class="btn-row">
+            <button id="auto-start-btn">Start Capture</button>
+            <button id="auto-cancel-btn" class="btn-secondary" hidden>Cancel</button>
+          </div>
+          <p class="hint">System captures <strong>N diverse frames</strong> automatically.
+             Each frame generates <strong>6 augmented embeddings</strong> (mirror, rotation, brightness).</p>
+        </div>
+
+        <!-- Upload Photo tab -->
+        <form id="register-form" class="tab-content" data-tab="upload">
+          <input type="text" id="reg-name" placeholder="Person name" required />
+          <label class="file-label" for="reg-image">Choose Photo</label>
+          <input type="file" id="reg-image" accept="image/*" required />
+          <div id="preview-wrapper" hidden>
+            <img id="preview-img" alt="Preview" />
+          </div>
+          <button type="submit">Register + Augment</button>
+          <p class="hint">Upload a clear face photo. System auto-detects and creates 6 variants.</p>
+        </form>
+
+        <!-- Snapshot tab -->
+        <div class="tab-content" data-tab="snapshot">
+          <input type="text" id="snap-name" placeholder="Person name" />
+          <button id="snap-btn">Capture Frame</button>
+          <p class="hint">Registers current camera frame with augmentation.</p>
+        </div>
+      </div>
+
+      <!-- Registered Faces -->
+      <div class="card" id="faces-card">
+        <h2>Registered Faces</h2>
+        <ul id="faces-list"><li class="empty">No faces registered yet</li></ul>
+      </div>
+
+    </aside>
+  </main>
+
+  <div id="toast-container"></div>
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
