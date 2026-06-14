@@ -1,20 +1,19 @@
 {
-  "n_samples": 350,
-  "accuracy": 0.6543,
-  "macro_f1": 0.6568,
+  "n_samples": 700,
+  "accuracy": 0.5371,
+  "macro_f1": 0.5435,
   "per_class_f1": {
-    "angry": 0.5531,
-    "disgust": 0.4147,
-    "fear": 0.5137,
-    "happy": 0.799,
-    "sad": 0.7526,
-    "surprise": 0.768,
-    "neutral": 0.7967
+    "angry": 0.398,
+    "disgust": 0.6027,
+    "fear": 0.3911,
+    "happy": 0.7558,
+    "sad": 0.4245,
+    "surprise": 0.7006,
+    "neutral": 0.5315
   },
-  "switch_rate_raw": 0.432,
-  "switch_rate_smooth": 0.187,
-  "latency_raw_mean_ms": 42.5,
-  "latency_smooth_mean_ms": 0.08,
-  "smooth_window": 5,
-  "note": "DEMO DATA — chưa có dataset/deepface thực"
+  "switch_rate_raw": 0.6595,
+  "switch_rate_smooth": 0.1717,
+  "latency_raw_mean_ms": 5.62,
+  "latency_smooth_mean_ms": 0.0109,
+  "smooth_window": 5
 }
