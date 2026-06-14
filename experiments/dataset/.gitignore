@@ -1,0 +1,6 @@
+# Exclude FER2013 emotion images (downloaded separately, ~63MB)
+emotion/
+
+# Exclude any large auto-downloaded datasets
+*.zip
+*.tar.gz

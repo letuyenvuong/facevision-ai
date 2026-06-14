@@ -5,360 +5,363 @@
 > - `[~]` = Đang làm / Làm dở
 > - `[x]` = Đã hoàn thành
 >
-> **Khi bắt đầu session mới**: Tìm checkpoint `[~]` gần nhất hoặc `[ ]` đầu tiên và tiếp tục từ đó.
-> **Sau khi hoàn thành 1 step**: Cập nhật `[ ]` thành `[x]` và ghi notes bên dưới.
+> **Khi bắt đầu session mới**:
+> 1. Đọc `claude.md` để nạp ngữ cảnh kỹ thuật
+> 2. Tìm checkpoint `[~]` gần nhất → tiếp tục
+> 3. Nếu không có `[~]`, tìm `[ ]` đầu tiên → bắt đầu
+> 4. Sau khi xong 1 checkpoint: cập nhật `[x]`, ghi Notes, cập nhật TỔNG QUAN
 
 ---
 
 ## 📊 TỔNG QUAN TIẾN ĐỘ
 
 ```
-Phase 1: Setup & Structure     [x] 5/5
-Phase 2: Core Pipeline         [x] 3/4  (2.4 test - pending manual run)
-Phase 3: Module Detection      [x] 3/4  (3.4 test - pending manual run)
-Phase 4: Module Recognition    [x] 4/5  (4.5 test - pending manual run)
-Phase 5: Module Emotion        [x] 3/4  (5.4 test - pending manual run)
-Phase 6: Module Reconstruction [x] 4/5  (6.5 test - pending manual run)
-Phase 7: Flask API & Stream    [x] 3/5  (7.4, 7.5 - pending manual run)
-Phase 8: Frontend UI           [x] 5/5
-Phase 9: Integration & Test    [ ] 0/4
-Phase 10: Optimization         [ ] 0/4
+Phase 1:  Setup & Structure       [x] 5/5  ✅ Hoàn thành
+Phase 2:  Core Pipeline           [x] 3/4  ⚠️  test pending
+Phase 3:  Module Detection        [x] 3/4  ⚠️  test pending
+Phase 4:  Module Recognition      [x] 4/5  ⚠️  test pending
+Phase 5:  Module Emotion          [x] 3/4  ⚠️  test pending
+Phase 6:  Module Reconstruction   [x] 4/5  ⚠️  test pending
+Phase 7:  Flask API & Stream      [x] 3/5  ⚠️  cần chạy app
+Phase 8:  Frontend UI             [x] 5/5  ✅ Hoàn thành
+Phase 9:  Integration & Test      [ ] 0/4  ← LÀM TIẾP THEO (cần chạy app)
+Phase 10: Optimization            [ ] 0/4
+Phase 11: Thực nghiệm E1–E4       [~] 2/8  ← ĐANG LÀM
+Phase 12: Kết quả vào báo cáo     [ ] 0/4
 
-TOTAL: [x] 33/45 steps hoàn thành
+TỔNG: 35/53 checkpoints (66%)
 ```
 
+> ⚠️ Phase 11–12 là mới — thêm vào để phục vụ báo cáo học thuật.
+
 ---
 
-## 🚀 PHASE 1 — PROJECT SETUP & STRUCTURE
+## 🚀 PHASE 1 — PROJECT SETUP & STRUCTURE ✅
 
-### CHECKPOINT 1.1 — Khởi tạo cấu trúc thư mục
-- [x] Tạo toàn bộ thư mục theo cấu trúc trong `claude.md`
-- [x] Tạo các file `__init__.py` cho mỗi package
+### CHECKPOINT 1.1 [x] — Khởi tạo cấu trúc thư mục
 - **Notes**: Tạo core/, modules/, models/{known_faces,embeddings,eigenfaces}, static/{css,js,assets}, templates/, utils/, tests/, scripts/
 
-### CHECKPOINT 1.2 — File cấu hình
-- [x] Tạo `config.py` với tất cả constants
-- [x] Tạo `requirements.txt` đầy đủ
-- **Notes**: config.py có đủ tất cả section: video, detection, recognition, emotion, reconstruction, flask, paths, emotion_colors
+### CHECKPOINT 1.2 [x] — File cấu hình
+- **Notes**: config.py đủ section: video, detection, recognition, emotion, reconstruction, flask, paths, emotion_colors
 
-### CHECKPOINT 1.3 — Utility modules
-- [x] Tạo `utils/logger.py` — logging với color console output
-- [x] Tạo `utils/image_utils.py` — resize, normalize, crop face
-- **Notes**: logger.py dùng ANSI colors; image_utils.py có resize_frame, resize_for_detection, normalize_face, crop_face, align_face, encode_jpeg
+### CHECKPOINT 1.3 [x] — Utility modules
+- **Notes**: logger.py dùng ANSI colors; image_utils.py có resize_frame, normalize_face, crop_face, align_face, encode_jpeg
 
-### CHECKPOINT 1.4 — Database khuôn mặt
-- [x] Tạo `utils/face_db.py` — load/save face embeddings từ `models/embeddings/`
-- [x] Định nghĩa dataclass `FaceRecord`, `FaceRegion`, `EmotionResult`
-- **Notes**: FaceDatabase class với load(), reload(), save(), find_closest() cosine distance
+### CHECKPOINT 1.4 [x] — Database khuôn mặt
+- **Notes**: FaceDatabase class với load(), reload(), save(), find_closest() cosine distance; dataclass FaceRecord, FaceRegion, EmotionResult
 
-### CHECKPOINT 1.5 — Kiểm tra môi trường
-- [ ] Verify OpenCV import + webcam access
-- [ ] Verify DeepFace import + model download
-- [ ] Verify MTCNN import
-- [x] Tạo `tests/test_env.py` — script kiểm tra toàn bộ dependencies
-- **Notes**: Chạy `python tests/test_env.py` để verify môi trường
+### CHECKPOINT 1.5 [x/~] — Kiểm tra môi trường
+- [x] Tạo `tests/test_env.py`
+- [ ] Chạy `python tests/test_env.py` trên máy GPU mới và xác nhận PASS
+- **Notes**: Cần verify lại trên máy mới. Chạy: `python tests/test_env.py`
 
 ---
 
-## 🔧 PHASE 2 — CORE PIPELINE
+## 🔧 PHASE 2 — CORE PIPELINE ✅ (code xong, test pending)
 
-### CHECKPOINT 2.1 — Camera module
-- [x] Tạo `core/camera.py`
-- [x] Implement `CameraStream` class với threading
-- [x] Frame queue với `maxsize=2` (drop old frames)
-- [x] Support cả webcam index và video file path
-- [x] Graceful stop/release
-- **Notes**: CameraStream.start(), read(), stop(). FPS throttling bằng sleep loop.
+### CHECKPOINT 2.1 [x] — Camera module
+- **Notes**: CameraStream.start(), read(), stop(). Frame queue maxsize=2. Support webcam index và video path.
 
-### CHECKPOINT 2.2 — Overlay renderer
-- [x] Tạo `core/overlay.py`
-- [x] Vẽ bounding box màu theo emotion
-- [x] Render tên identity + confidence badge
-- [x] Render emotion mini-bar bên dưới bbox
-- [x] FPS counter ở góc màn hình
+### CHECKPOINT 2.2 [x] — Overlay renderer
 - **Notes**: draw_face_box(), draw_fps(), draw_face_count(), draw_reconstruction_thumbnail()
 
-### CHECKPOINT 2.3 — Pipeline orchestrator
-- [x] Tạo `core/pipeline.py`
-- [x] Class `FacePipeline` — khởi tạo tất cả 4 module
-- [x] Method `process_frame(frame)` — chạy toàn bộ pipeline
-- [x] FPS throttling: chỉ chạy heavy inference mỗi N frame
-- [x] Error isolation: mỗi module try/except riêng
-- **Notes**: Cache kết quả giữa các frame, lazy module loading với error isolation
+### CHECKPOINT 2.3 [x] — Pipeline orchestrator
+- **Notes**: FacePipeline — cache kết quả giữa các frame, lazy module loading, error isolation per module
 
-### CHECKPOINT 2.4 — Pipeline unit test
+### CHECKPOINT 2.4 [ ] — Pipeline unit test
 - [ ] Test `process_frame` với ảnh tĩnh
-- [ ] Đảm bảo output format đúng chuẩn
-- **Notes**: Pending — cần cài dependencies trước
+- [ ] Xác nhận output format đúng
+- **Notes**: Chạy sau khi cài dependencies: `python -c "from core.pipeline import FacePipeline; p = FacePipeline(); print('OK')"`
 
 ---
 
-## 👁️ PHASE 3 — MODULE DETECTION
+## 👁️ PHASE 3 — MODULE DETECTION ✅ (code xong, test pending)
 
-### CHECKPOINT 3.1 — Detection cơ bản (OpenCV Haar)
-- [x] Tạo `modules/detection.py`
-- [x] Implement `detect_faces_haar(frame)` dùng `haarcascade_frontalface_default.xml`
-- [x] Output: `List[FaceRegion(x, y, w, h, confidence)]`
-- **Notes**: FaceDetector._detect_haar() với Haar cascade
+### CHECKPOINT 3.1 [x] — Haar Cascade
+- **Notes**: FaceDetector._detect_haar() với haarcascade_frontalface_default.xml
 
-### CHECKPOINT 3.2 — Detection nâng cao (MTCNN)
-- [x] Implement `detect_faces_mtcnn(frame)` dùng MTCNN
-- [x] Include landmarks (5 điểm: mắt, mũi, miệng)
-- [x] Auto-fallback sang Haar nếu MTCNN fails
-- **Notes**: FaceDetector._detect_mtcnn() với resize 50% trước khi detect, scale bbox x2
+### CHECKPOINT 3.2 [x] — MTCNN
+- **Notes**: FaceDetector._detect_mtcnn() — resize 50%, detect, scale bbox x2, fallback sang Haar nếu fail
 
-### CHECKPOINT 3.3 — Face crop utility
-- [x] `crop_face(frame, face_region, padding=0.2)` — crop + padding
-- [x] `align_face(frame, landmarks)` — align khuôn mặt thẳng (affine transform)
-- **Notes**: Trong utils/image_utils.py
+### CHECKPOINT 3.3 [x] — Face crop + align
+- **Notes**: crop_face() và align_face() trong utils/image_utils.py
 
-### CHECKPOINT 3.4 — Detection test
-- [ ] `tests/test_detection.py` — test với ảnh có 0, 1, nhiều khuôn mặt
-- [ ] Benchmark FPS với MTCNN vs Haar
-- **Notes**: Pending
+### CHECKPOINT 3.4 [ ] — Detection test
+- [ ] Chạy `python tests/test_detection.py`
+- [ ] Benchmark FPS: Haar vs MTCNN trên cùng ảnh test
+- **Notes**: Cần dataset ảnh. Dùng ảnh trong experiments/dataset/ nếu đã có.
 
 ---
 
-## 🪪 PHASE 4 — MODULE RECOGNITION
+## 🪪 PHASE 4 — MODULE RECOGNITION ✅ (code xong, test pending)
 
-### CHECKPOINT 4.1 — DeepFace embedding
-- [x] Tạo `modules/recognition.py`
-- [x] `extract_embedding(face_crop)` → `np.ndarray (512,)` dùng ArcFace
-- [x] Handle lỗi: no face, blurry, too small
-- **Notes**: Dùng temp file + DeepFace.represent với detector_backend="skip"
+### CHECKPOINT 4.1 [x] — ArcFace embedding
+- **Notes**: extract_embedding() dùng temp file + DeepFace.represent, detector_backend="skip"
 
-### CHECKPOINT 4.2 — Face registration
-- [x] `register_face(name, image_path)` — extract + lưu embedding vào `models/embeddings/`
-- [x] Format file: `{name}_{timestamp}.npy`
-- [x] CLI script `scripts/register_face.py` để đăng ký từ terminal
-- **Notes**: scripts/register_face.py với argparse
+### CHECKPOINT 4.2 [x] — Face registration
+- **Notes**: register_face() lưu {name}_{timestamp}.npy; scripts/register_face.py CLI
 
-### CHECKPOINT 4.3 — Face identification
-- [x] `identify_face(face_crop) -> (name, cosine_distance)`
-- [x] Load tất cả embeddings từ database vào memory lúc start
-- [x] Cosine similarity so sánh với tất cả known faces
-- [x] Return "Unknown" nếu distance > threshold (0.40)
-- **Notes**: FaceDatabase.find_closest() với L2-norm của unit vectors
+### CHECKPOINT 4.3 [x] — Face identification
+- **Notes**: identify_face() → (name, cosine_distance); "Unknown" nếu distance > 0.40
 
-### CHECKPOINT 4.4 — Embedding cache
-- [x] `FaceDatabase` class — load embeddings 1 lần, cache in-memory
-- [x] `reload()` method — hot-reload khi có face mới đăng ký
-- **Notes**: Trong utils/face_db.py
+### CHECKPOINT 4.4 [x] — Embedding cache
+- **Notes**: FaceDatabase trong utils/face_db.py — load 1 lần, reload() khi thêm face mới
 
-### CHECKPOINT 4.5 — Recognition test
-- [ ] `tests/test_recognition.py` — test register + identify
-- [ ] Test edge case: same person nhiều ảnh, người lạ
-- **Notes**: Pending
+### CHECKPOINT 4.5 [ ] — Recognition test
+- [ ] Đăng ký 2–3 người bằng `python scripts/register_face.py`
+- [ ] Chạy `python tests/test_recognition.py`
+- [ ] Test edge case: cùng người ảnh khác / người lạ
+- **Notes**: Cần dataset ảnh trước.
 
 ---
 
-## 😊 PHASE 5 — MODULE EMOTION
+## 😊 PHASE 5 — MODULE EMOTION ✅ (code xong, test pending)
 
-### CHECKPOINT 5.1 — DeepFace emotion analyzer
-- [x] Tạo `modules/emotion.py`
-- [x] `analyze_emotion(face_crop) -> EmotionResult`
-- [x] `EmotionResult`: `{dominant: str, scores: Dict[str, float], confidence: float}`
-- **Notes**: DeepFace.analyze với actions=["emotion"], detector_backend="skip"
+### CHECKPOINT 5.1 [x] — DeepFace emotion analyzer
+- **Notes**: DeepFace.analyze actions=["emotion"], detector_backend="skip"
 
-### CHECKPOINT 5.2 — Emotion smoothing
-- [x] Rolling average trên 5 frame gần nhất (tránh flickering)
-- [x] `EmotionTracker` class per face ID
-- **Notes**: EmotionTracker dùng deque(maxlen=5)
+### CHECKPOINT 5.2 [x] — Smoothing
+- **Notes**: EmotionTracker dùng deque(maxlen=5), rolling average
 
-### CHECKPOINT 5.3 — Emotion color mapping
-- [x] Map emotion → màu bounding box (trong config.py EMOTION_COLORS)
-- **Notes**: BGR colors trong config.py, dùng trong core/overlay.py
+### CHECKPOINT 5.3 [x] — Color mapping
+- **Notes**: EMOTION_COLORS dict trong config.py, dùng trong overlay.py
 
-### CHECKPOINT 5.4 — Emotion test
-- [ ] `tests/test_emotion.py` — test với ảnh biểu cảm rõ ràng
-- [ ] Accuracy check thủ công
-- **Notes**: Pending
+### CHECKPOINT 5.4 [ ] — Emotion test
+- [ ] Chạy `python tests/test_emotion.py` với ảnh biểu cảm rõ ràng
+- **Notes**: Dùng ảnh sample từ internet (vd: FER2013 sample images) nếu chưa có dataset.
 
 ---
 
-## 🧬 PHASE 6 — MODULE RECONSTRUCTION
+## 🧬 PHASE 6 — MODULE RECONSTRUCTION (code xong, chưa train)
 
-### CHECKPOINT 6.1 — PCA Eigenface training
-- [x] Tạo `modules/reconstruction.py`
-- [x] `train_eigenfaces(face_images, n_components=50)` — fit PCA
-- [x] Lưu PCA model vào `models/eigenfaces/pca_model.pkl`
-- [ ] Script `scripts/train_eigenfaces.py` dùng dataset mẫu
-- **Notes**: FaceReconstructor.train() với sklearn PCA
+### CHECKPOINT 6.1 [x/~] — PCA training
+- [x] Implement train() method
+- [ ] Tạo `scripts/train_eigenfaces.py` (script CLI để train từ dataset)
+- [ ] Train PCA model và lưu `models/eigenfaces/pca_model.pkl`
+- **Notes**: Module tự disable nếu pkl chưa tồn tại. Cần dataset trước.
 
-### CHECKPOINT 6.2 — Face reconstruction
-- [x] `reconstruct_face(face_crop) -> reconstructed_image`
-- [x] Load PCA model, project face vào eigenspace, reconstruct
-- [x] Resize output về kích thước gốc
-- **Notes**: reconstruct() returns grayscale (64x64) numpy array
+### CHECKPOINT 6.2 [x] — Face reconstruction
+- **Notes**: reconstruct() returns grayscale 64×64 numpy array
 
-### CHECKPOINT 6.3 — Reconstruction error / anomaly
-- [x] `get_reconstruction_error(face_crop) -> float`
-- [x] MSE giữa original và reconstructed — cao = khuôn mặt "lạ"
-- [ ] Threshold để flag "unusual face"
-- **Notes**: get_reconstruction_error() returns MSE float
+### CHECKPOINT 6.3 [x/~] — Reconstruction error
+- [x] get_reconstruction_error() → MSE float
+- [ ] Xác định threshold để flag "unusual face" (dựa trên phân phối MSE trên dataset)
+- **Notes**: Chọn threshold = mean + 2*std của MSE trên validation set
 
-### CHECKPOINT 6.4 — Visualization
-- [x] Hiển thị reconstructed face thumbnail nhỏ ở góc bbox
-- [ ] Eigenface components visualization (ảnh debug)
-- **Notes**: draw_reconstruction_thumbnail() trong core/overlay.py
+### CHECKPOINT 6.4 [x/~] — Visualization
+- [x] draw_reconstruction_thumbnail() trong overlay.py
+- [ ] Eigenface components visualization (optional, cho báo cáo)
 
-### CHECKPOINT 6.5 — Reconstruction test
-- [ ] Test pipeline: crop → reconstruct → compare
-- [ ] Kiểm tra reconstruction quality bằng mắt
-- **Notes**: Pending — cần train PCA model trước
+### CHECKPOINT 6.5 [ ] — Reconstruction test
+- [ ] Train PCA model với dataset ảnh
+- [ ] Test reconstruct() → so sánh ảnh gốc vs tái dựng bằng mắt
+- **Notes**: Cần hoàn thành Phase 11 E4 trước.
 
 ---
 
 ## 🌐 PHASE 7 — FLASK API & VIDEO STREAM
 
-### CHECKPOINT 7.1 — Flask app skeleton
-- [x] Tạo `app.py` — Flask init, CORS, error handlers
-- [x] Load `FacePipeline` lúc startup (không lazy load)
-- [x] Graceful shutdown — release camera khi stop
-- **Notes**: atexit.register(on_exit) để release camera
+### CHECKPOINT 7.1 [x] — Flask app skeleton
+- **Notes**: atexit.register(on_exit) để release camera. FacePipeline load lúc startup.
 
-### CHECKPOINT 7.2 — MJPEG video stream
-- [x] Route `GET /video_feed` — generator yield JPEG frames
-- [x] `generate_frames()` — lấy frame từ pipeline, encode JPEG, yield
-- [x] Header: `multipart/x-mixed-replace; boundary=frame`
-- **Notes**: generate_frames() generator function
+### CHECKPOINT 7.2 [x] — MJPEG stream
+- **Notes**: generate_frames() generator, Content-Type: multipart/x-mixed-replace
 
-### CHECKPOINT 7.3 — API endpoints
-- [x] `GET /api/status` — FPS, face_count, uptime, module status
-- [x] `GET /api/faces` — danh sách registered faces
-- [x] `POST /api/register` — upload ảnh + name → register face
-- [x] `GET /api/snapshot` — base64 PNG của frame hiện tại
-- **Notes**: Đủ 4 endpoints
+### CHECKPOINT 7.3 [x] — API endpoints
+- **Notes**: /api/status, /api/faces, /api/register (POST), /api/snapshot
 
-### CHECKPOINT 7.4 — API test
-- [ ] Test tất cả endpoints với curl / Postman
-- [ ] Test upload ảnh register face
-- **Notes**: Pending — cần chạy app
+### CHECKPOINT 7.4 [ ] — API test
+- [ ] Chạy `python app.py`
+- [ ] Test: `curl http://localhost:5000/api/status`
+- [ ] Test: `curl http://localhost:5000/api/faces`
+- [ ] Test upload: `curl -X POST -F "name=test" -F "image=@test.jpg" http://localhost:5000/api/register`
+- **Notes**: Cần chạy trên máy có webcam.
 
-### CHECKPOINT 7.5 — Stream stability
-- [ ] Test stream liên tục 5 phút — không memory leak
-- [ ] FPS ổn định > 15 FPS
-- **Notes**: Pending
+### CHECKPOINT 7.5 [ ] — Stream stability
+- [ ] Stream liên tục 5 phút không memory leak
+- [ ] FPS ổn định > 15 FPS (GPU: > 25 FPS kỳ vọng)
+- **Notes**: Dùng `htop` hoặc Task Manager để monitor RAM trong lúc stream.
 
 ---
 
-## 🎨 PHASE 8 — FRONTEND UI
+## 🎨 PHASE 8 — FRONTEND UI ✅
 
-### CHECKPOINT 8.1 — Layout HTML cơ bản
-- [x] Tạo `templates/index.html`
-- [x] Split layout: stream (trái 70%) + panel (phải 30%)
-- [x] `<img src="/video_feed">` cho live stream
-- **Notes**: Flexbox layout với stream + side-panel
-
-### CHECKPOINT 8.2 — CSS styling
-- [x] Dark theme với màu accent teal/cyan
-- [x] Responsive cho 1080p+
-- [x] Tạo `static/css/style.css`
-- **Notes**: CSS variables, dark theme #0d0f14, accent #00e5cc
-
-### CHECKPOINT 8.3 — Realtime stats panel
-- [x] FPS counter (poll `/api/status` mỗi 1s)
-- [x] Danh sách khuôn mặt đang detected
-- [x] Current dominant emotion với emoji
-- **Notes**: pollStatus() mỗi 1s, pollFaces() mỗi 5s
-
-### CHECKPOINT 8.4 — Face registration UI
-- [x] Form upload ảnh + nhập tên
-- [x] Preview ảnh trước khi submit
-- [x] Feedback toast khi register thành công/thất bại
-- **Notes**: Toast system với success/error/info types
-
-### CHECKPOINT 8.5 — JavaScript
-- [x] Tạo `static/js/main.js`
-- [x] Polling API status
-- [x] Handle file upload
-- [x] Toast notifications
-- **Notes**: Vanilla JS, async/await fetch
+- **Notes**: index.html split layout 70/30; style.css dark theme #0d0f14 accent #00e5cc; main.js polling + upload + toast. Hoàn chỉnh.
 
 ---
 
-## 🧪 PHASE 9 — INTEGRATION & TESTING
+## 🧪 PHASE 9 — INTEGRATION & TESTING ← LÀM TIẾP THEO
 
-### CHECKPOINT 9.1 — End-to-end test
-- [ ] Chạy toàn bộ app với webcam thật
-- [ ] Verify tất cả 4 module hoạt động đồng thời
-- [ ] Kiểm tra overlay hiển thị đúng
-- **Notes**: _
+### CHECKPOINT 9.0 [ ] — Cài đặt máy GPU mới (làm đầu tiên)
+- [ ] `git clone https://github.com/letuyenvuong/facevision-ai.git`
+- [ ] `python -m venv venv && source venv/bin/activate`
+- [ ] `pip install -r requirements.txt`
+- [ ] `pip install matplotlib seaborn pandas` (thêm nếu chưa có)
+- [ ] `python tests/test_env.py` → xác nhận PASS
+- **Notes**: DeepFace download ~500MB lần đầu. Cần internet.
 
-### CHECKPOINT 9.2 — Multi-face test
+### CHECKPOINT 9.1 [ ] — End-to-end test webcam
+- [ ] `python app.py` → mở http://localhost:5000
+- [ ] Verify webcam stream hiển thị trong browser
+- [ ] Verify detection box xuất hiện khi có mặt người
+- [ ] Verify emotion label thay đổi theo biểu cảm
+- [ ] Verify FPS counter hoạt động (GPU kỳ vọng > 25 FPS)
+- **Notes**: Chụp screenshot kết quả để ghi vào báo cáo.
+
+### CHECKPOINT 9.2 [ ] — Multi-face test
 - [ ] Test với 2, 3+ khuôn mặt cùng lúc
-- [ ] Đảm bảo mỗi face có bbox + label riêng
-- **Notes**: _
+- [ ] Mỗi face có bbox + label riêng biệt
+- [ ] Ghi nhận FPS khi có nhiều face (so sánh với 1 face)
+- **Notes**: Dùng ảnh nhóm in ra giấy nếu không đủ người.
 
-### CHECKPOINT 9.3 — Edge case test
-- [ ] Khuôn mặt đeo khẩu trang / kính
-- [ ] Ánh sáng tối
-- [ ] Khuôn mặt nghiêng > 45 độ
-- [ ] Không có khuôn mặt trong frame
-- **Notes**: _
+### CHECKPOINT 9.3 [ ] — Edge case test
+- [ ] Khẩu trang: detection có bỏ sót không?
+- [ ] Kính: emotion có bị ảnh hưởng không?
+- [ ] Ánh sáng tối: thử che bớt đèn phòng
+- [ ] Không có mặt: pipeline xử lý đúng (không crash)
+- [ ] Mặt nghiêng > 45°: MTCNN có fallback sang Haar không?
+- **Notes**: Ghi lại quan sát cho §7.3 kịch bản A–F trong báo cáo.
 
-### CHECKPOINT 9.4 — Video file test
-- [ ] Test với video file `.mp4` thay vì webcam
-- [ ] Verify config switch `CAMERA_INDEX = "path/to/video.mp4"`
-- **Notes**: _
+### CHECKPOINT 9.4 [ ] — Video file test
+- [ ] Test `CAMERA_INDEX = "path/to/test.mp4"` trong config.py
+- [ ] Verify stream từ video file chạy đúng
+- **Notes**: Tải 1 video test ngắn từ internet nếu không có sẵn.
 
 ---
 
-## ⚡ PHASE 10 — OPTIMIZATION & POLISH
+## ⚡ PHASE 10 — OPTIMIZATION
 
-### CHECKPOINT 10.1 — Performance profiling
-- [ ] Đo FPS từng module riêng lẻ
-- [ ] Identify bottleneck
-- [ ] Implement frame skip adaptive (giảm process rate nếu FPS < 10)
-- **Notes**: _
+### CHECKPOINT 10.1 [ ] — Performance profiling
+- [ ] Đo thời gian từng module: detection, embedding, emotion, reconstruction (ms/frame)
+- [ ] Ghi vào bảng: Module | Avg ms | % tổng pipeline
+- [ ] Identify bottleneck (thường là DeepFace embedding)
+- **Notes**: Thêm `time.perf_counter()` wrap quanh từng module trong pipeline.py
 
-### CHECKPOINT 10.2 — Model optimization
-- [ ] TensorFlow Lite conversion cho emotion model (optional)
-- [ ] Batch processing nếu nhiều face
-- **Notes**: _
+### CHECKPOINT 10.2 [ ] — GPU optimization
+- [ ] Verify TensorFlow dùng GPU: `python -c "import tensorflow as tf; print(tf.config.list_physical_devices('GPU'))"`
+- [ ] Nếu GPU available: thử tăng batch size hoặc giảm PROCESS_EVERY_N_FRAMES
+- [ ] So sánh FPS CPU-only vs GPU
+- **Notes**: Ghi FPS GPU vs CPU vào báo cáo §7.2 cấu hình thực nghiệm.
 
-### CHECKPOINT 10.3 — Documentation
-- [ ] Viết `README.md` — hướng dẫn cài đặt + chạy
-- [ ] Comment code tất cả public functions
-- [ ] Tạo `.env.example`
-- **Notes**: _
+### CHECKPOINT 10.3 [ ] — Documentation
+- [ ] Viết `README.md` — cài đặt, chạy, đăng ký face
+- [ ] Thêm `.env.example` nếu có biến môi trường
+- **Notes**: README tối thiểu: requirements, install steps, run command.
 
-### CHECKPOINT 10.4 — Final review
-- [ ] Code review toàn bộ
-- [ ] Xử lý tất cả TODO/FIXME còn lại
-- [ ] Test clean install từ đầu
-- **Notes**: _
+### CHECKPOINT 10.4 [ ] — Final review
+- [ ] Kiểm tra tất cả TODO/FIXME còn lại trong code
+- [ ] Test clean install từ đầu trên máy mới
+- **Notes**: Chạy `grep -r "TODO\|FIXME" . --include="*.py"` để liệt kê.
+
+---
+
+## 📊 PHASE 11 — THỰC NGHIỆM E1–E4 (MỤC TIÊU CHÍNH CHO BÁO CÁO)
+
+> Đây là phase quan trọng nhất hiện tại. Kết quả đây sẽ điền vào Chương 7 báo cáo Word.
+> Xem chi tiết đầy đủ trong `claude.md` mục "4 THỰC NGHIỆM CẦN CHẠY".
+
+### CHECKPOINT 11.0 [x] — Tạo cấu trúc thư mục thực nghiệm
+```bash
+mkdir -p experiments/{dataset,results/E1_detector,results/E2_alignment,results/E3_emotion,results/E4_pca,figures}
+echo "person_id,image_file,session,pose,lighting,occlusion,camera,resolution,note" > experiments/dataset/metadata.csv
+```
+
+### CHECKPOINT 11.1 [ ] — Thu thập dataset
+- [ ] Ít nhất 5–10 người tham gia (lý tưởng 10–15)
+- [ ] Mỗi người: 5 điều kiện × 5–10 ảnh = 25–50 ảnh/người
+- [ ] 5 điều kiện: frontal, pose_15, pose_30, dark, occluded
+- [ ] Điền metadata.csv cho từng ảnh
+- [ ] Tổng tối thiểu: ~250 ảnh
+- **Notes**: Lưu ảnh vào `experiments/dataset/person_XX/condition_NNN.jpg`
+
+### CHECKPOINT 11.2 [x] — Viết + chạy script E1 (Detector comparison)
+- [x] Viết `experiments/run_E1_detector.py`
+- [x] Chạy demo (chưa có dataset thực): `E1_recall_by_condition.png` + `E1_latency_boxplot.png` + `E1_results_DEMO.csv`
+- [ ] Chạy lại với dataset thực: `python experiments/run_E1_detector.py`
+- **Notes**: Script tự detect khi chưa có dataset → sinh demo output. Cần cài mtcnn cho MTCNN detector.
+
+### CHECKPOINT 11.3 [x] — Viết + chạy script E2 (Alignment impact)
+- [x] Viết `experiments/run_E2_alignment.py`
+- [x] Chạy demo: `E2_histogram.png` + `E2_roc.png` + `E2_summary.json`
+- [ ] Chạy lại với dataset + deepface thực: `python experiments/run_E2_alignment.py`
+- **Notes**: Cần `pip install deepface tensorflow` + dataset ảnh.
+
+### CHECKPOINT 11.4 [x] — Viết + chạy script E3 (FER evaluation)
+- [x] Viết `experiments/run_E3_emotion.py`
+- [x] Chạy demo: `E3_confusion_matrix.png` + `E3_per_class_f1.png` + `E3_results.json`
+- [ ] Chuẩn bị ảnh biểu cảm có nhãn → `experiments/dataset/emotion/<label>/*.jpg`
+- [ ] Chạy lại với dataset thực: `python experiments/run_E3_emotion.py`
+- **Notes**: Có thể dùng subset FER2013 (Kaggle). Cần deepface+tensorflow.
+
+### CHECKPOINT 11.5 [x] — Viết + chạy script E4 (PCA reconstruction)
+- [x] Viết `experiments/run_E4_pca.py`
+- [x] Chạy demo: `E4_metrics_DEMO.csv` + `E4_curve_mse_ssim.png` + `E4_scree_plot.png` + `E4_reconstruction_grid.png`
+- [ ] Chạy lại với dataset thực (không cần deepface/tensorflow!): `python experiments/run_E4_pca.py`
+- **Notes**: E4 chỉ cần opencv + sklearn + scikit-image — có thể chạy ngay khi có ảnh dataset.
+
+### CHECKPOINT 11.6 [ ] — Profiling pipeline (bổ sung cho báo cáo)
+- [ ] Đo thời gian từng stage: detection / embedding / emotion / reconstruction (ms/frame)
+- [ ] Lưu: `experiments/results/profiling_results.csv`
+- [ ] Tính % thời gian mỗi stage so với tổng pipeline
+- **Notes**: Thêm timer trong pipeline.py, chạy 100 frame rồi lấy trung bình
+
+---
+
+## 📝 PHASE 12 — ĐIỀN KẾT QUẢ VÀO BÁO CÁO WORD
+
+### CHECKPOINT 12.1 [ ] — Điền bảng số liệu Chương 7
+- [ ] §7.4 bảng kịch bản S01–S04: điền từ E1 results
+- [ ] §4.2 bảng Haar vs MTCNN: điền từ E1_results.csv
+- [ ] §4.3 embedding analysis: điền từ E2_summary.json
+- [ ] §5.5 confusion matrix: chèn E3_confusion_matrix.png
+
+### CHECKPOINT 12.2 [ ] — Chèn biểu đồ
+- [ ] §4.2: chèn E1_recall_by_condition.png
+- [ ] §4.3: chèn E2_histogram.png + E2_roc.png
+- [ ] §5.5: chèn E3_confusion_matrix.png + E3_per_class_f1.png
+- [ ] §6.1: chèn E4_reconstruction_grid.png + E4_curve_mse_ssim.png + E4_scree_plot.png
+
+### CHECKPOINT 12.3 [ ] — Viết phân tích kết quả
+- [ ] §7.5 thảo luận: trả lời RQ1–RQ5 bằng số liệu cụ thể
+- [ ] §7.7 phân tích thất bại: 3–5 trường hợp lỗi điển hình
+- [ ] §10 Kết luận: viết lại với số liệu thực ("MTCNN đạt Recall X% ở pose 30°...")
+
+### CHECKPOINT 12.4 [ ] — Bổ sung lý thuyết còn thiếu
+- [ ] §2.2: công thức loss multi-task MTCNN, giải thích NMS
+- [ ] §2.3: ma trận affine alignment, phân tích tại sao giảm variance
+- [ ] §6.1: công thức explained variance ratio, scree plot
+- [ ] §3/§4: giải thích tại sao chọn threshold=0.40, k=50 (từ số liệu E2, E4)
 
 ---
 
 ## 🗒️ SESSION NOTES
 
-> Agent: Ghi lại các quyết định quan trọng, bugs đã gặp, và thay đổi so với plan gốc tại đây.
-
-| Session | Date       | Completed             | Notes |
-|---------|------------|-----------------------|-------|
-| 1       | 2026-06-04 | Phase 1–8 (33/45)    | Setup toàn bộ codebase từ đầu. Phase 9–10 pending manual testing. |
+| Session | Date       | Completed                       | Notes |
+|---------|------------|---------------------------------|-------|
+| 1       | 2026-06-04 | Phase 1–8 (33/45)              | Setup toàn bộ codebase trên máy cũ |
+| 2       | 2026-06-09 | Cập nhật claude.md + checkpoints | Chuyển sang máy GPU mới. Thêm Phase 11–12 cho thực nghiệm báo cáo |
+| 3       | 2026-06-09 | 11.0, 11.2–11.5 (script E1–E4) | Tạo experiments/. Viết 4 script E1–E4. Demo output chạy OK (15 files). deepface/mtcnn/tensorflow chưa cài. |
 
 ---
 
 ## ⚠️ KNOWN ISSUES / BLOCKERS
 
-> Ghi lại các vấn đề đang chặn progress:
-
-- Dependencies chưa được cài (`pip install -r requirements.txt`) — cần chạy trước khi test
-- PCA model chưa được train — reconstruction module sẽ tự disable cho đến khi có dataset
-- DeepFace sẽ tải model weights (~500MB) lần đầu chạy
+1. **Dependencies chưa cài trên máy GPU mới** → Chạy `pip install -r requirements.txt` trước tiên
+2. **PCA model chưa train** → reconstruction module tự disable. Train sau khi có dataset (Phase 11.1)
+3. **DeepFace download ~500MB lần đầu** → Cần internet khi chạy lần đầu
+4. **matplotlib/seaborn/pandas có thể chưa trong requirements.txt** → `pip install matplotlib seaborn pandas` nếu thiếu
+5. **Script E1–E4 chưa tồn tại** → Agent cần viết mới trong Phase 11
 
 ---
 
-## 🔄 CÁCH AGENT SỬ DỤNG FILE NÀY
+## 🔄 THỨ TỰ LÀM TIẾP THEO (cho Agent)
 
 ```
-1. Đọc TỔNG QUAN TIẾN ĐỘ → biết đang ở phase nào
-2. Tìm checkpoint [~] đầu tiên → tiếp tục step đang dở
-3. Nếu không có [~], tìm [ ] đầu tiên → bắt đầu step mới
-4. Đọc claude.md để nạp ngữ cảnh kỹ thuật chi tiết
-5. Code xong 1 checkpoint → cập nhật [x] và ghi Notes
-6. Cập nhật TỔNG QUAN TIẾN ĐỘ (số đếm)
-7. Ghi vào SESSION NOTES
+Bước 1: CHECKPOINT 9.0 — Cài đặt môi trường máy mới
+Bước 2: CHECKPOINT 1.5 — Chạy test_env.py, xác nhận PASS
+Bước 3: CHECKPOINT 9.1 — Chạy app.py lần đầu, xác nhận webcam stream
+Bước 4: CHECKPOINT 11.0 — Tạo thư mục experiments/
+Bước 5: CHECKPOINT 11.1 — Thu thập dataset
+Bước 6: CHECKPOINT 11.2 → 11.5 — Viết và chạy E1, E2, E3, E4
+Bước 7: CHECKPOINT 12.1 → 12.4 — Điền kết quả vào báo cáo Word
 ```

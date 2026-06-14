@@ -1,0 +1,6 @@
+condition,n_images,haar_tp,haar_fn,haar_recall,haar_lat_mean_ms,haar_fps,mtcnn_tp,mtcnn_fn,mtcnn_recall,mtcnn_lat_mean_ms,mtcnn_fps
+frontal,30,26,4,0.879,10.75,93.0,27,3,0.9315,73.39,13.6
+pose15,30,23,7,0.7871,10.29,97.2,27,3,0.9147,61.93,16.1
+pose30,30,24,6,0.8015,11.08,90.3,28,2,0.9347,63.48,15.8
+dark,30,16,14,0.5499,12.43,80.4,20,10,0.6922,111.68,9.0
+occluded,30,14,16,0.4793,10.65,93.9,16,14,0.5506,116.0,8.6

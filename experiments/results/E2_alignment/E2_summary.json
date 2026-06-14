@@ -1,0 +1,18 @@
+{
+  "no_alignment": {
+    "eer": 0.0317,
+    "tar_at_far_001": 0.9589,
+    "genuine_mean": 0.7311,
+    "genuine_std": 0.1949,
+    "impostor_mean": 0.1133,
+    "impostor_std": 0.0839
+  },
+  "with_alignment": {
+    "eer": 0.0296,
+    "tar_at_far_001": 0.9631,
+    "genuine_mean": 0.7305,
+    "genuine_std": 0.1903,
+    "impostor_mean": 0.1194,
+    "impostor_std": 0.0841
+  }
+}

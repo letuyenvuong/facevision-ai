@@ -1,0 +1,20 @@
+{
+  "n_samples": 350,
+  "accuracy": 0.6543,
+  "macro_f1": 0.6568,
+  "per_class_f1": {
+    "angry": 0.5531,
+    "disgust": 0.4147,
+    "fear": 0.5137,
+    "happy": 0.799,
+    "sad": 0.7526,
+    "surprise": 0.768,
+    "neutral": 0.7967
+  },
+  "switch_rate_raw": 0.432,
+  "switch_rate_smooth": 0.187,
+  "latency_raw_mean_ms": 42.5,
+  "latency_smooth_mean_ms": 0.08,
+  "smooth_window": 5,
+  "note": "DEMO DATA — chưa có dataset/deepface thực"
+}
