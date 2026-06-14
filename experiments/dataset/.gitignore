@@ -1,6 +1,10 @@
 # Exclude FER2013 emotion images (downloaded separately, ~63MB)
 emotion/
 
+# Exclude raw FER2013 split folders (158MB, not tracked)
+test/
+train/
+
 # Exclude any large auto-downloaded datasets
 *.zip
 *.tar.gz
